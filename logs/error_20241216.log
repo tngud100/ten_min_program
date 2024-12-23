@@ -1,0 +1,54 @@
+2024-12-16 15:14:45,114 - root - ERROR - Timestamp: 2024-12-16 15:14:45
+Exception Type: WrongPasswordError
+Context: 자동 대낙 처리 중 오류 발생
+Error Details: 비밀번호 오류
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\service\auto_ten_min.py", line 91, in ten_min_start
+    if self.password_handler.handle_password_screen(screen, loaded_templates, password_list, self.screen_state):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 60, in handle_password_screen
+    raise e  # 예외를 발생시켜 상위 코드로 전달
+    ^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 50, in handle_password_screen
+    raise WrongPasswordError("비밀번호 오류")
+src.utils.error_handler.WrongPasswordError: 비밀번호 오류
+
+--------------------------------------------------------------------------------
+
+2024-12-16 15:15:39,097 - root - ERROR - Timestamp: 2024-12-16 15:15:39
+Exception Type: WrongPasswordError
+Context: 자동 대낙 처리 중 오류 발생
+Error Details: 비밀번호 오류
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\service\auto_ten_min.py", line 91, in ten_min_start
+    if self.password_handler.handle_password_screen(screen, loaded_templates, password_list, self.screen_state):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 60, in handle_password_screen
+    raise e  # 예외를 발생시켜 상위 코드로 전달
+    ^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 50, in handle_password_screen
+    raise WrongPasswordError("비밀번호 오류")
+src.utils.error_handler.WrongPasswordError: 비밀번호 오류
+
+--------------------------------------------------------------------------------
+
+2024-12-16 15:17:40,335 - root - ERROR - Timestamp: 2024-12-16 15:17:40
+Exception Type: NoDetectionError
+Context: 자동 대낙 처리 중 오류 발생
+Error Details: passwordScreen 화면이 20회 이상 탐지되지 않았습니다.
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\service\auto_ten_min.py", line 91, in ten_min_start
+    if self.password_handler.handle_password_screen(screen, loaded_templates, password_list, self.screen_state):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 60, in handle_password_screen
+    raise e  # 예외를 발생시켜 상위 코드로 전달
+    ^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\ten_min\src\detection\password_handler.py", line 31, in handle_password_screen
+    raise NoDetectionError(f"passwordScreen 화면이 {self.MAX_DETECTION_ATTEMPTS}회 이상 탐지되지 않았습니다.")
+src.utils.error_handler.NoDetectionError: passwordScreen 화면이 20회 이상 탐지되지 않았습니다.
+
+--------------------------------------------------------------------------------
+

@@ -1,0 +1,24 @@
+2024-12-11 16:28:47,431 - root - ERROR - Timestamp: 2024-12-11 16:28:47
+Exception Type: KeyError
+Context: �ڵ� �볫 ó�� �� ���� �߻�
+
+2024-12-11 16:31:04,114 - root - ERROR - Timestamp: 2024-12-11 16:31:04
+Exception Type: KeyError
+Context: 자동 대낙 처리 중 오류 발생
+
+2024-12-11 16:34:03,003 - root - ERROR - Timestamp: 2024-12-11 16:34:03
+Exception Type: KeyError
+Context: 자동 대낙 처리 중 오류 발생
+Error Details: 'password_templates'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\auto_deanak.py", line 89, in deanak_start
+    if self.password_handler.handle_password_screen(screen, loaded_templates, password_list, self.screen_state):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\detection\password_handler.py", line 37, in handle_password_screen
+    if template_key not in loaded_templates['password_templates']:
+                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'password_templates'
+
+--------------------------------------------------------------------------------
+

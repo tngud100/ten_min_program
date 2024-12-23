@@ -1,0 +1,172 @@
+2024-12-05 15:45:11,534 - root - ERROR - Error: object bool can't be used in 'await' expression
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 22, in check_otp
+    await self.remote.start_remote(worker_id)
+TypeError: object bool can't be used in 'await' expression
+
+2024-12-05 16:06:28,189 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 33, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:06:57,070 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 33, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:24:45,812 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 33, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:29:19,872 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 33, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:30:42,075 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 30, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:31:54,626 - root - ERROR - Error: name 'get_db_context' is not defined
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 30, in check_otp
+    async with get_db_context() as db:
+               ^^^^^^^^^^^^^^
+NameError: name 'get_db_context' is not defined
+
+2024-12-05 16:38:33,776 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 61, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 119, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:40:22,734 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 61, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 119, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:42:28,901 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 119, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:44:17,462 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 119, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:45:31,776 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 122, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:46:40,086 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 120, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:47:33,340 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 120, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:50:21,422 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 118, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
+2024-12-05 16:50:47,659 - root - ERROR - Error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+Context: {'worker_id': 'deanak1'}
+Traceback: Traceback (most recent call last):
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\service\deanak_service.py", line 63, in check_otp
+    top_left, bottom_right, _ = self.image_matcher.detect_template(screen, templates["otp_frame"])
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gameins\Desktop\auto_deanak_program\auto_deanak\src\utils\image_matcher.py", line 118, in detect_template
+    result = cv2.matchTemplate(screen, resized, cv2.TM_CCOEFF_NORMED)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.0) D:\a\opencv-python\opencv-python\opencv\modules\imgproc\src\templmatch.cpp:1164: error: (-215:Assertion failed) (depth == CV_8U || depth == CV_32F) && type == _templ.type() && _img.dims() <= 2 in function 'cv::matchTemplate'
+
+
