@@ -18,3 +18,7 @@ env/
 
 # 기타
 .DS_Store
+
+# 로그 파일
+logs/
+*.log
