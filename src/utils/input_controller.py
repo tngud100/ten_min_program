@@ -40,11 +40,26 @@ class InputController:
     def hotkey(self, *args):
         """단축키 입력"""
         try:
-            keyboard.press_and_release('+'.join(args))
+            # 모든 키를 누름
+            for key in args:
+                keyboard.press(key)
+                time.sleep(0.1)  # 각 키 입력 사이에 약간의 딜레이
+            
+            # 역순으로 키를 뗌
+            for key in reversed(args):
+                keyboard.release(key)
+                time.sleep(0.1)
+            
             time.sleep(self.default_delay)
             return True
         except Exception as e:
             print(f"단축키 입력 중 오류 발생: {e}")
+            # 에러 발생 시 모든 키를 떼줌
+            for key in args:
+                try:
+                    keyboard.release(key)
+                except:
+                    pass
             return False
 
     def type_text(self, text):

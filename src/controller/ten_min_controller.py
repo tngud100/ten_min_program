@@ -36,7 +36,7 @@ ten_min_timer_service = TenMinTimerService(remote, error_handler, remote_pcs_dao
 auto_ten_min = AutoTenMin(image_matcher, input_controller, template_service, capture, state, remote_pcs_dao, remote, auto_ten_min_dao)
 do_service = DoService(remote, error_handler, state, remote_pcs_dao, otp_service, auto_ten_min, ten_min_timer_service, auto_ten_min_dao)
 
-async def do_task(request, worker_id:str=None, ten_min_info:dict=None):
+async def do_task(request, ten_min_info:dict=None):
     """태스크 실행"""
     print(f"태스크 실행: request={request}, ten_min_state={ten_min_info['ten_min_state']}")
 
@@ -47,7 +47,6 @@ async def do_task(request, worker_id:str=None, ten_min_info:dict=None):
         if request == "otp_check":
             # 작업 상태 업데이트
             async with get_db_context() as db:
-                # print(f"server_id={server_id} 대낙 실행")
                 await remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "working")
             await do_service.check_otp(ten_min_info)
 
@@ -62,12 +61,20 @@ async def do_task(request, worker_id:str=None, ten_min_info:dict=None):
 
             await do_service.execute_ten_min(ten_min_info)
 
-        else:
-            print(f"알 수 없는 태스크: {request}")
-        return {"status": "success"}
+        # 서비스 완료 후 대기 중인 요청 처리
+        try:
+            while not state.pending_services.empty():
+                next_request = await state.pending_services.get()
+                print(f"대기 중이던 요청 처리 시작: worker_id={next_request['worker_id']}")
+                await do_task(
+                    next_request['request'],
+                    next_request['ten_min_info']
+                )
+        except Exception as e:
+            print(f"대기 중인 요청 처리 중 오류 발생: {e}")
+
     except Exception as e:
-        print(f"작업 실패: {e}")
-        return {"status": "error", "message": str(e)}
+        print(f"대기 중인 요청 처리 중 작업 실패: {e}")
 
 async def stop_ten_min():
     """태스크 중지"""

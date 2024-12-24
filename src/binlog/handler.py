@@ -3,6 +3,7 @@ from pymysqlreplication.row_event import (
     UpdateRowsEvent,
     WriteRowsEvent,
 )
+from sqlalchemy.orm import remote
 from src.controller.ten_min_controller import do_task
 from src import state
 from src.dao.remote_pcs_dao import RemoteDao
@@ -50,7 +51,7 @@ async def handle_row_event(event, server_id):
                             continue
 
                         print(f"worker_id데이터 state에 삽입")
-                        state.worker_id.append(worker_id)
+                        state.add_worker(worker_id)
                         
                         # 작업 상태 업데이트
                         async with get_db_context() as db:
@@ -91,19 +92,30 @@ async def handle_row_event(event, server_id):
                         # 원격pc의 state가져오기
                         async with get_db_context() as db:
                             remote_pcs = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id)
-                            # print(f"remote_pcs={remote_pcs}")
                             if remote_pcs is None:
                                 print(f"해당 작업자의 원격pc 서버를 찾지 못했습니다.")
                                 continue
 
-                        if service == "10분접속" and otp == 0 and coupon_count == 0 and ten_min_state == 2 and worker_id is not None and remote_pcs.state == "idle":
-                            print("자동 10분접속 실행")
-                            await do_task("ten_min_start", ten_min_info=ten_min_info)
-                    
+                            # 작업 중인 PC 수 확인 또는 현재 worker_id의 상태가 waiting인지 확인
+                            working_count = await RemoteDao.get_working_count_by_server_id(db, server_id)
+                            worker_remote_data = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id) 
+                            if working_count > 0 or worker_remote_data.state == "waiting":
+                                print(f"작업 중인 PC가 있거나 현재 PC가 대기 중입니다. 요청을 대기열에 추가합니다: worker_id={worker_id}")
+                                service_request = {
+                                    'request': "ten_min_start",
+                                    'worker_id': worker_id,
+                                    'ten_min_info': ten_min_info
+                                }
+                                await state.pending_services.put(service_request)
+                                continue
+
+                        # 서비스 실행
+                        if service == "10분접속" and otp == 0 and coupon_count == 0 and ten_min_state == 2:
+                            await do_task("ten_min_start", ten_min_info)
+
             except Exception as e:
-                print(f"개별 row 처리 중 오류 발생: {e}")
+                print(f"Row 처리 중 오류 발생: {e}")
                 continue
-                
+
     except Exception as e:
-        print(f"전체 이벤트 처리 중 오류 발생: {e}")
-        raise
+        print(f"이벤트 처리 중 오류 발생: {e}")

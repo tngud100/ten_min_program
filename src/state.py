@@ -1,6 +1,7 @@
 import uuid
 import os
 import asyncio
+from asyncio import Queue
 
 class unique_id:
     def __init__(self):
@@ -42,4 +43,15 @@ monitoring_task = None
 service_running_task = None
 is_running = True  # Task 실행 상태를 제어하기 위한 플래그
 worker_id = []
-SERVICE_TIMER = 1 * 10 # 시간초로 10분
+SERVICE_TIMER = 2 * 60 # 시간초로 10분
+pending_services = Queue()
+
+def add_worker(worker_id_value):
+    """worker_id 추가"""
+    if worker_id_value not in worker_id:
+        worker_id.append(worker_id_value)
+
+def remove_worker(worker_id_value):
+    """worker_id 제거"""
+    if worker_id_value in worker_id:
+        worker_id.remove(worker_id_value)
