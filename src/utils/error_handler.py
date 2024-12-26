@@ -20,6 +20,8 @@ class NoWorkerError(Exception):
     pass
 class CantFindPcNumError(Exception):
     pass
+class OTPTimeoutError(Exception):
+    pass
 class CantFindTenMinDataError(Exception):
     pass
 class NotChangedPCStateError(Exception):

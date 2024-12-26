@@ -7,7 +7,7 @@ class RemotePcs(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     server_id = Column(String(45), nullable=False)
-    service = Column(String(255), nullable=False, default="일반대낙")
+    service = Column(String(255), nullable=False)
     worker_id = Column(String(255), nullable=True)
     state = Column(String(50), nullable=False)
     server_online_time = Column(DateTime, nullable=False, default=datetime.now)

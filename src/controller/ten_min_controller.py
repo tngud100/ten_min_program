@@ -34,7 +34,7 @@ template_service = TemplateService(image_matcher)
 otp_service = OTPService(image_matcher, capture, input_controller, template_service)
 ten_min_timer_service = TenMinTimerService(remote, error_handler, remote_pcs_dao, auto_ten_min_dao, deanak_dao, input_controller, state)
 auto_ten_min = AutoTenMin(image_matcher, input_controller, template_service, capture, state, remote_pcs_dao, remote, auto_ten_min_dao)
-do_service = DoService(remote, error_handler, state, remote_pcs_dao, otp_service, auto_ten_min, ten_min_timer_service, auto_ten_min_dao)
+do_service = DoService(remote, error_handler, state, deanak_dao, remote_pcs_dao, otp_service, auto_ten_min, ten_min_timer_service, auto_ten_min_dao)
 
 async def do_task(request, ten_min_info:dict=None):
     """태스크 실행"""
@@ -49,6 +49,9 @@ async def do_task(request, ten_min_info:dict=None):
             async with get_db_context() as db:
                 await remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "working")
             await do_service.check_otp(ten_min_info)
+            print("otp 인식 완료, 30초 뒤 10분 접속 작업 시작")
+            await asyncio.sleep(30)
+            await do_task("ten_min_start", ten_min_info)
 
         if request == "ten_min_start":
             # 먼저 대기 중인 10분 접속 데이터 처리
@@ -74,6 +77,9 @@ async def do_task(request, ten_min_info:dict=None):
             print(f"대기 중인 요청 처리 중 오류 발생: {e}")
 
     except Exception as e:
+        async with get_db_context() as db:
+            await remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "stopped")
+
         print(f"대기 중인 요청 처리 중 작업 실패: {e}")
 
 async def stop_ten_min():

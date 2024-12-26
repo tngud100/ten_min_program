@@ -114,7 +114,6 @@ class RemoteController:
             bool: 종료 성공 여부
         """
         try:
-            print('test')
             self.input.press_key('win')
             time.sleep(1)
             self.input.press_key('win')

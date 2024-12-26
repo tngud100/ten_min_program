@@ -59,8 +59,8 @@ async def handle_row_event(event, server_id):
 
                     elif table_name == "deanak":
                         # ten_min 테이블의 컬럼 매핑
-                        ten_min_columns = ["id", "service", "pw2", "worker_id", "coupon_count", "otp", "state"]
-                        unknown_cols = ["UNKNOWN_COL0", "UNKNOWN_COL1", "UNKNOWN_COL2", "UNKNOWN_COL3", "UNKNOWN_COL4", "UNKNOWN_COL5", "UNKNOWN_COL6"]
+                        ten_min_columns = ["id", "service", "pw2", "worker_id", "coupon_count", "otp", "state", "otp_pass"]
+                        unknown_cols = ["UNKNOWN_COL0", "UNKNOWN_COL1", "UNKNOWN_COL2", "UNKNOWN_COL3", "UNKNOWN_COL4", "UNKNOWN_COL5", "UNKNOWN_COL6", "UNKNOWN_COL7"]
 
                         after_values = {ten_min_columns[i]: after_values.get(unknown_cols[i], None) for i in range(len(ten_min_columns))}
 
@@ -74,10 +74,11 @@ async def handle_row_event(event, server_id):
                         service = after_values.get("service")
                         pw2 = after_values.get("pw2")
                         otp = after_values.get("otp")
+                        otp_pass = after_values.get("otp_pass")
                         coupon_count = after_values.get("coupon_count")
                         ten_min_state = after_values.get("state")
 
-                        print(f"개별 row 처리: service={service}, worker_id={worker_id}, pw2={pw2}, coupon_count={coupon_count}, otp={otp}, ten_min_state={ten_min_state}")
+                        print(f"개별 row 처리: service={service}, worker_id={worker_id}, pw2={pw2}, coupon_count={coupon_count}, otp={otp}, ten_min_state={ten_min_state}, otp_pass={otp_pass}")
 
                         ten_min_info = {
                             "deanak_id": deanak_id,
@@ -111,7 +112,12 @@ async def handle_row_event(event, server_id):
 
                         # 서비스 실행
                         if service == "10분접속" and otp == 0 and coupon_count == 0 and ten_min_state == 2:
+                            print("otp 작업 없이 10분 접속 작업 시작")
                             await do_task("ten_min_start", ten_min_info)
+
+                        if service == "10분접속" and otp == 1 and coupon_count == 0 and ten_min_state == 2 and otp_pass == 0:
+                            print("otp 인식 시작")
+                            await do_task("otp_check", ten_min_info)
 
             except Exception as e:
                 print(f"Row 처리 중 오류 발생: {e}")

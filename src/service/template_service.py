@@ -12,6 +12,7 @@ class TemplateService:
             # OTP 관련 템플릿
             "otp_frame": 'static/image/otpFrame.PNG',
             "otp_number": 'static/image/otpNumber.PNG',
+            "otp_wrong": 'static/image/otpWrong.PNG',
             # 대낙 관련 템플릿
             "password_screen": 'static/image/passwordScreen.PNG',
             "password_confirm": 'static/image/loginConfirm.PNG',

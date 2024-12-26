@@ -8,11 +8,12 @@ class DeanakModel(Base):
     __tablename__ = 'deanak'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    server_id = Column(String(45), nullable=False)
     service = Column(String(255), nullable=False)
     worker_id = Column(String(255), nullable=True)
+    coupon_count = Column(Integer, nullable=False, default=0)
+    otp = Column(String(255), nullable=False)
     state = Column(String(50), nullable=False)
-    server_online_time = Column(DateTime, nullable=False, default=datetime.now)
+    otp_pass = Column(Integer, nullable=False, default=0)
 
     def __repr__(self):
-        return f"Deanak(server_id={self.server_id})"
+        return f"Deanak(deanak_id={self.id})"
