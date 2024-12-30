@@ -107,7 +107,7 @@ class TenMinTimerService:
 
             # 프로그램 종료 (Alt+F4)
             await self.remote.exit_program()
-            await asyncio.sleep(5)  # 종료 대기
+            await asyncio.sleep(2)  # 종료 대기
             # 원격 연결 종료
             await self.remote.exit_remote()
 

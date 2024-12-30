@@ -30,6 +30,7 @@ async def handle_row_event(event, server_id):
                         unknown_cols = ["UNKNOWN_COL0", "UNKNOWN_COL1", "UNKNOWN_COL2", "UNKNOWN_COL3", "UNKNOWN_COL4", "UNKNOWN_COL5"]
 
                         # UNKNOWN_COL을 실제 컬럼 이름으로 변경
+                        before_values = {table_columns[i]: before_values.get(unknown_cols[i], None) for i in range(len(table_columns))}
                         after_values = {table_columns[i]: after_values.get(unknown_cols[i], None) for i in range(len(table_columns))}
 
                         # server_id 검증
@@ -62,12 +63,19 @@ async def handle_row_event(event, server_id):
                         ten_min_columns = ["id", "service", "pw2", "worker_id", "coupon_count", "otp", "state", "otp_pass"]
                         unknown_cols = ["UNKNOWN_COL0", "UNKNOWN_COL1", "UNKNOWN_COL2", "UNKNOWN_COL3", "UNKNOWN_COL4", "UNKNOWN_COL5", "UNKNOWN_COL6", "UNKNOWN_COL7"]
 
+                        before_values = {ten_min_columns[i]: before_values.get(unknown_cols[i], None) for i in range(len(ten_min_columns))}
                         after_values = {ten_min_columns[i]: after_values.get(unknown_cols[i], None) for i in range(len(ten_min_columns))}
 
                         worker_id = after_values.get("worker_id")
                         print(f"worker_id={worker_id}, state.worker_id={state.worker_id}")
                         if not worker_id or worker_id is None or not worker_id in state.worker_id:
                             continue
+
+                        # otp_pass에 관한 update사항이라면 continue를 통해 로직에서 빠져나오기
+                        if after_values.get("otp_pass") != before_values.get("otp_pass"):
+                            print(f"before_values.get('otp_pass')={before_values.get('otp_pass')}, after_values.get('otp_pass')={after_values.get('otp_pass')}")
+                            continue
+
 
                         # ten_min 테이블의 필요한 값들 가져오기
                         deanak_id = after_values.get("id")
@@ -78,7 +86,7 @@ async def handle_row_event(event, server_id):
                         coupon_count = after_values.get("coupon_count")
                         ten_min_state = after_values.get("state")
 
-                        print(f"개별 row 처리: service={service}, worker_id={worker_id}, pw2={pw2}, coupon_count={coupon_count}, otp={otp}, ten_min_state={ten_min_state}, otp_pass={otp_pass}")
+                        # print(f"개별 row 처리: service={service}, worker_id={worker_id}, pw2={pw2}, coupon_count={coupon_count}, otp={otp}, ten_min_state={ten_min_state}, otp_pass={otp_pass}")
 
                         ten_min_info = {
                             "deanak_id": deanak_id,
