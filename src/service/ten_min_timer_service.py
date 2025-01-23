@@ -3,13 +3,15 @@ import asyncio
 from os import error
 from database import get_db_context
 from src.dao.deanak_dao import DeanakDao
-from src.utils.error_handler import ErrorHandler, CantFindTenMinDataError, NotChangedPCStateError
+from src.utils import api
+from src.utils.error_handler import ErrorHandler, CheckTimerError, CantFindTenMinDataError
 from src.dao.auto_ten_min_dao import AutoTenMinDao
 from src.dao.remote_pcs_dao import RemoteDao
 from src.utils.remote_controller import RemoteController
 from src.utils.input_controller import InputController
 from src import state
 from src.models.service_state import ServiceState
+from src.utils.api import Api
 
 class TenMinTimerService:
     """10분 접속 타이머 관리 서비스
@@ -25,7 +27,7 @@ class TenMinTimerService:
     """
     def __init__(self, remote: RemoteController, error_handler: ErrorHandler, 
                  remote_pcs_dao: RemoteDao, auto_ten_min_dao: AutoTenMinDao, deanak_dao: DeanakDao,
-                 input_controller: InputController, state: state):
+                 input_controller: InputController, state: state, api: Api):
         self.remote = remote
         self.error_handler = error_handler
         self.remote_pcs_dao = remote_pcs_dao
@@ -33,6 +35,7 @@ class TenMinTimerService:
         self.deanak_dao = deanak_dao
         self.input_controller = input_controller
         self.state = state
+        self.api = api
 
     async def check_timer(self, server_id: str, deanak_id: int):
         """10분 접속 타이머를 확인하고 상태를 업데이트합니다.
@@ -60,11 +63,8 @@ class TenMinTimerService:
                 # 현재 서비스 상태 확인
                 timer_data = await self.auto_ten_min_dao.find_auto_ten_min(db, deanak_id, server_id)
                 if timer_data is None:
-                    self.error_handler.handle_error(
-                        CantFindTenMinDataError("10분접속 데이터를 찾을 수 없습니다."),
-                        context={'server_id': server_id, 'deanak_id': deanak_id}
-                    )
-                    return False
+                    raise CantFindTenMinDataError("10분 접속 타이머 데이터를 찾을 수 없습니다.")
+                
                 if timer_data.state != ServiceState.TIMEOUT:
                     print(f"deanak_id:{deanak_id}, 10분 접속 타이머가 초과되지 않아 진행되지 않습니다.")
                     return False
@@ -85,10 +85,14 @@ class TenMinTimerService:
                 worker_id = await self.deanak_dao.get_worker_id_by_deanak_id(db, deanak_id)
                 await self.remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "working")
                 await self.auto_ten_min_dao.update_ten_min_state(db, deanak_id, server_id, ServiceState.WORKING)
-        except Exception as e:
-            self.error_handler.handle_error(e)
+                await self.api.send_start(deanak_id)
 
-        return await self.finish_ten_min(server_id, deanak_id, worker_id)
+            return await self.finish_ten_min(server_id, deanak_id, worker_id)
+        
+        except  CantFindTenMinDataError as e:
+            raise
+        except (Exception, CheckTimerError) as e:
+            raise CheckTimerError
 
     async def finish_ten_min(self, server_id: str, deanak_id: int, worker_id: str):
         """10분 접속을 종료하고 상태를 업데이트합니다.
@@ -102,12 +106,15 @@ class TenMinTimerService:
         """
         # 원격 연결 시작
         try:
-            if not await self.remote.start_remote(worker_id=worker_id):
+            async with get_db_context() as db:
+                pc_num = await self.remote_pcs_dao.get_pc_num_by_worker_id(db, worker_id);
+            
+            if not await self.remote.start_remote(pc_num):
                 return False
 
             # 프로그램 종료 (Alt+F4)
             await self.remote.exit_program()
-            await asyncio.sleep(2)  # 종료 대기
+            await asyncio.sleep(1)  # 종료 대기
             # 원격 연결 종료
             await self.remote.exit_remote()
 
@@ -120,24 +127,27 @@ class TenMinTimerService:
                     state=ServiceState.TERMINATED,
                     end_waiting_time=datetime.now()
                 )
+                await self.api.send_success(deanak_id)
                 
             return True
 
         except Exception as e:
-            self.error_handler.handle_error(e)
-            return False
+            raise CheckTimerError(f"check_timer함수의 finish_ten_min함수 내 오류")
 
     async def process_waiting_tasks(self):
         """대기 중인 10분 접속 작업들을 처리"""
         try:
             async with get_db_context() as db:
                 waiting_tasks = await self.auto_ten_min_dao.waiting_ten_min(db)
-                print(f"대기 중인 작업 수: {len(waiting_tasks) if waiting_tasks else 0}")
 
-                if waiting_tasks:
-                    for task in waiting_tasks:
-                        print(f"대기 중인 작업 처리 - deanak_id: {task.deanak_id}")
-                        await self.check_timer(task.server_id, task.deanak_id)
-                        
-        except Exception as e:
-            print(f"대기 중인 작업 처리 중 오류 발생: {e}")
+            print(f"대기 중인 작업 수: {len(waiting_tasks) if waiting_tasks else 0}")
+
+            if waiting_tasks:
+                for task in waiting_tasks:
+                    print(f"대기 중인 작업 처리 - deanak_id: {task.deanak_id}")
+                    await self.check_timer(task.server_id, task.deanak_id)
+        
+        except CantFindTenMinDataError as e:
+            raise
+        except (Exception, CheckTimerError) as e:
+            raise CheckTimerError

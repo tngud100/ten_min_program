@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, Integer, DateTime
 from datetime import datetime
 
 class DeanakModel(Base):
-    __tablename__ = 'deanak'
+    __tablename__ = 'daenak'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     service = Column(String(255), nullable=False)

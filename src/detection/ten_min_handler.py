@@ -13,7 +13,7 @@ class TenMinScreenHandler:
         self.state = state
         self.error_handler = ErrorHandler()
 
-    def handle_ten_min_screen(self, screen, loaded_templates, screen_state: ScreenState):
+    def handle_ten_min_screen(self, screen, loaded_templates, screen_state: ScreenState, deanak_id):
         """10분 모드을 처리합니다.
         
         Args:
@@ -39,4 +39,5 @@ class TenMinScreenHandler:
             return False
 
         except NoDetectionError as e:
+            self.error_handler.handle_error(e, {"deanak_id" : deanak_id}, user_message=self.error_handler.NO_DETECT_TEAM_SELECT_SCENE)
             raise e

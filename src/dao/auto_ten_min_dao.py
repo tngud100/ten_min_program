@@ -19,7 +19,8 @@ class AutoTenMinDao:
             return True
         except Exception as e:
             print(f"auto_ten_min데이터베이스에 insert 중 오류 발생: {e}")
-            return False
+            raise
+
         
     @staticmethod
     async def find_auto_ten_min(db, deanak_id, server_id):
@@ -34,14 +35,18 @@ class AutoTenMinDao:
             return result.scalar_one_or_none()
         except Exception as e:
             print(f"auto_ten_min데이터베이스에 find 중 오류 발생: {e}")
-            return None
+            raise
+
 
     @staticmethod
     async def waiting_ten_min(db):
         """대기 중인 10분 접속 데이터 조회"""
         try:
             stmt = select(TenMinModel).where(
-                or_(TenMinModel.state == ServiceState.WAITING, TenMinModel.state == ServiceState.TIMEOUT)
+                or_(
+                    TenMinModel.state == ServiceState.WAITING,
+                     TenMinModel.state == ServiceState.TIMEOUT
+                     )
                 ).order_by(
                     TenMinModel.start_waiting_time.asc()
                 )
@@ -49,7 +54,8 @@ class AutoTenMinDao:
             return result.scalars().all()
         except Exception as e:
             print(f"대기 중인 10분접속 데이터 조회 중 오류 발생: {e}")
-            return None
+            raise
+
 
     @staticmethod
     async def get_waiting_queue_by_server_id(db, server_id):
@@ -66,10 +72,7 @@ class AutoTenMinDao:
             stmt = select(TenMinModel).where(
                 and_(
                     TenMinModel.server_id == server_id,
-                    or_(
-                        TenMinModel.state == ServiceState.WAITING,
-                        TenMinModel.state == ServiceState.TIMEOUT
-                    )
+                    TenMinModel.state == ServiceState.TIMEOUT
                 )
             ).order_by(TenMinModel.start_waiting_time.asc())
             result = await db.execute(stmt)

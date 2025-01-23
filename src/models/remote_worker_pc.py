@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer
 from database import Base
 
 class RemoteWorkerPcs(Base):
-    __tablename__ = 'remote_worker_pc'
+    __tablename__ = 'workers'
     
     worker_id = Column(String(45), nullable=False, primary_key=True)
     pc_num = Column(Integer, nullable=False)

@@ -20,5 +20,22 @@ env/
 .DS_Store
 
 # 로그 파일
-logs/
 *.log
+logs/
+
+# 빌드 산출물
+build/
+dist/
+*.egg-info/
+
+# 테스트 캐시
+.pytest_cache/
+.coverage
+htmlcov/
+tests
+
+# 임시 파일
+*.tmp
+*.bak
+*.swp
+*~

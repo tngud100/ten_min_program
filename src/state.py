@@ -2,6 +2,7 @@ import uuid
 import os
 import asyncio
 from asyncio import Queue
+from datetime import datetime
 
 class unique_id:
     def __init__(self):
@@ -9,7 +10,10 @@ class unique_id:
         
     async def generate_unique_id(self):
         """고유 ID를 생성하고 파일에 저장"""
-        unique_id = int(uuid.uuid4().int % 100000)
+        now = datetime.now()
+        date_part = now.strftime("%H%M%S")
+        random_part = str(int(uuid.uuid4().int % 100000)).zfill(5)
+        unique_id = int(date_part + random_part)
         try:
             with open(self.file_path, 'w') as f:
                 f.write(str(unique_id))
@@ -41,6 +45,7 @@ class unique_id:
 # 태스크 관리를 위한 전역 변수
 monitoring_task = None
 service_running_task = None
+waiting_process_task = None
 is_running = True  # Task 실행 상태를 제어하기 위한 플래그
 worker_id = []
 SERVICE_TIMER = 2 * 60 # 시간초로 10분

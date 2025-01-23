@@ -12,7 +12,7 @@ class PasswordHandler:
         self.state = state
         self.error_handler = ErrorHandler()
 
-    def handle_password_screen(self, screen, loaded_templates, password_list, screen_state: ScreenState):
+    def handle_password_screen(self, screen, loaded_templates, password_list, screen_state: ScreenState, deanak_id):
         """비밀번호 화면을 처리합니다.
         Args:
             screen: 현재 화면 이미지
@@ -33,6 +33,7 @@ class PasswordHandler:
                 top_left, bottom_right, _ = self.image_matcher.detect_template(screen, loaded_templates['password_screen'])
                 if top_left and bottom_right:
                     roi = (top_left[0], top_left[1], bottom_right[0], bottom_right[1])
+
                     for template_key in password_list:
                         if template_key not in loaded_templates['password_templates']:
                             raise TemplateEmptyError(f"비밀번호 템플릿이 없습니다: {template_key}")
@@ -43,6 +44,7 @@ class PasswordHandler:
 
                     # 비밀번호 확인 클릭
                     if self.image_matcher.process_template(screen, 'password_confirm', loaded_templates, click=True, roi=roi):
+                        time.sleep(3)
                         for i in range(3):
                             screen = self.capture.screen_capture()
                             time.sleep(1)
@@ -55,6 +57,14 @@ class PasswordHandler:
             
             return False
 
-        except (NoDetectionError, WrongPasswordError, TemplateEmptyError) as e:
-            print("password에서 오류 발생")
-            raise e  # 예외를 발생시켜 상위 코드로 전달
+        except NoDetectionError as e:
+            self.error_handler.handle_error(e, {"deanak_id" : deanak_id}, user_message=self.error_handler.NO_DETECT_PASSWORD_SCENE)
+            raise e
+
+        except WrongPasswordError as e:
+            self.error_handler.handle_error(e, {"deanak_id" : deanak_id}, user_message=self.error_handler.WRONG_PASSWORD_ERROR)
+            raise e
+
+        except TemplateEmptyError as e:
+            self.error_handler.handle_error(e, {"deanak_id" : deanak_id}, user_message=self.error_handler.EMPTY_PASSWORD_TEMPLATE)
+            raise e

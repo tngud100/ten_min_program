@@ -51,7 +51,7 @@ class RemoteDao:
             return remote_pc.pc_num if remote_pc else None
         except Exception as e:
             print(f"원격 PC 번호 조회 중 오류 발생: {e}")
-            return None
+            raise
         
     @staticmethod
     async def get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id):
@@ -67,7 +67,7 @@ class RemoteDao:
             return result.scalar_one_or_none() if result else None
         except Exception as e:
             print(f"PC 상태 조회 중 오류 발생: {e}")
-            return None
+            raise
 
     @staticmethod 
     async def update_tasks_request(db, server_id, worker_id, request):
@@ -89,7 +89,7 @@ class RemoteDao:
             return True
         except Exception as e:
             print(f"작업 요청 상태 업데이트 중 오류 발생: {e}")
-            return False
+            raise
 
     @staticmethod
     async def get_working_count_by_server_id(db, server_id):
@@ -113,3 +113,4 @@ class RemoteDao:
             return len(result.scalars().all())
         except Exception as e:
             print(f"작업 중인 PC 수 조회 중 오류 발생: {e}")
+            raise

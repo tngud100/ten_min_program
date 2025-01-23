@@ -12,7 +12,7 @@ class NoticeHandler:
         self.state = state
         self.error_handler = ErrorHandler()
 
-    def handle_notice_screen(self, screen, loaded_templates, screen_state: ScreenState):
+    def handle_notice_screen(self, screen, loaded_templates, screen_state: ScreenState, deanak_id):
         """공지사항 화면을 처리합니다.
         
         Args:
@@ -27,7 +27,7 @@ class NoticeHandler:
             if not screen_state.notice_passed and screen_state.password_passed:
                 self.input_controller.press_key("esc")
                 if screen_state.get_count("notice") > self.MAX_DETECTION_ATTEMPTS:
-                    return NoDetectionError(f"noticeScreen 화면이 {self.MAX_DETECTION_ATTEMPTS}회 이상 탐지되지 않았습니다.")
+                    raise NoDetectionError(f"noticeScreen 화면이 {self.MAX_DETECTION_ATTEMPTS}회 이상 탐지되지 않았습니다.")
                 
                 if self.image_matcher.process_template(screen, 'team_select_screen', loaded_templates):
                     screen_state.notice_passed = True
@@ -38,5 +38,5 @@ class NoticeHandler:
             return False
 
         except NoDetectionError as e:
-            print("notice에서 오류 발생")
+            self.error_handler.handle_error(e, {"deanak_id" : deanak_id}, user_message=self.error_handler.NO_DETECT_NOTICE_SCENE)
             raise e

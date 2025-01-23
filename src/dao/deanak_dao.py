@@ -11,7 +11,7 @@ class DeanakDao:
             return result.scalar_one_or_none()
         except Exception as e:
             print(f"worker_id 구하기 중 오류 발생: {e}")
-            return None
+            raise
 
     @staticmethod
     async def get_otp_pass_by_deanak_id(db, deanak_id):
@@ -21,7 +21,7 @@ class DeanakDao:
             return result.scalar_one_or_none()
         except Exception as e:
             print(f"otp_pass 구하기 중 오류 발생: {e}")
-            return None
+            raise
 
     @staticmethod
     async def update_otp_pass(db, deanak_id, otp_pass):
@@ -32,4 +32,4 @@ class DeanakDao:
             return True
         except Exception as e:
             print(f"otp_pass 업데이트 중 오류 발생: {e}")
-            return False
+            raise

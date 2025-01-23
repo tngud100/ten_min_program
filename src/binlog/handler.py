@@ -3,11 +3,15 @@ from pymysqlreplication.row_event import (
     UpdateRowsEvent,
     WriteRowsEvent,
 )
-from sqlalchemy.orm import remote
+from sqlalchemy.orm import context, remote
 from src.controller.ten_min_controller import do_task
 from src import state
 from src.dao.remote_pcs_dao import RemoteDao
 from database import get_db_context
+from src.utils import error_handler
+from src.utils.error_handler import ControllerError, ErrorHandler
+
+error_handler = ErrorHandler()
 
 async def handle_row_event(event, server_id):
     """이벤트 처리 로직"""
@@ -58,10 +62,16 @@ async def handle_row_event(event, server_id):
                         async with get_db_context() as db:
                             await RemoteDao().update_tasks_request(db, server_id, worker_id, "idle")
 
-                    elif table_name == "deanak":
+                    elif table_name == "daenak":
                         # ten_min 테이블의 컬럼 매핑
-                        ten_min_columns = ["id", "service", "pw2", "worker_id", "coupon_count", "otp", "state", "otp_pass"]
-                        unknown_cols = ["UNKNOWN_COL0", "UNKNOWN_COL1", "UNKNOWN_COL2", "UNKNOWN_COL3", "UNKNOWN_COL4", "UNKNOWN_COL5", "UNKNOWN_COL6", "UNKNOWN_COL7"]
+                        ten_min_columns = ["id", "name", "depositor", "service", "game_id", "pw1", "pw2", "nickname", "phone", "login_type", 
+                                            "price", "otp", "instant", "topclass", "coupon_count", "coupon_content", "state", "cookie", "regdate", "deposit_date",
+                                            "success_date", "worker_id", "erased_worker_id", "erased_reason", "erased_date", "path", "same_name",
+                                            "is_waiting_active", "topclass_agree", "otp_pass"]
+
+                        unknown_cols = []
+                        for i in range(len(ten_min_columns)):
+                            unknown_cols.append(f"UNKNOWN_COL{i}")
 
                         before_values = {ten_min_columns[i]: before_values.get(unknown_cols[i], None) for i in range(len(ten_min_columns))}
                         after_values = {ten_min_columns[i]: after_values.get(unknown_cols[i], None) for i in range(len(ten_min_columns))}
@@ -93,43 +103,68 @@ async def handle_row_event(event, server_id):
                             "worker_id": worker_id,
                             "service": service,
                             "pw2": pw2,
-                            "coupon_count": coupon_count,
                             "otp": otp,
+                            "otp_pass": otp_pass,
+                            "coupon_count": coupon_count,
                             "ten_min_state": ten_min_state,
                         }
-
-                        # 원격pc의 state가져오기
-                        async with get_db_context() as db:
-                            remote_pcs = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id)
-                            if remote_pcs is None:
-                                print(f"해당 작업자의 원격pc 서버를 찾지 못했습니다.")
-                                continue
-
-                            # 작업 중인 PC 수 확인 또는 현재 worker_id의 상태가 waiting인지 확인
-                            working_count = await RemoteDao.get_working_count_by_server_id(db, server_id)
-                            worker_remote_data = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id) 
-                            if working_count > 0 or worker_remote_data.state == "waiting":
-                                print(f"작업 중인 PC가 있거나 현재 PC가 대기 중입니다. 요청을 대기열에 추가합니다: worker_id={worker_id}")
-                                service_request = {
-                                    'request': "ten_min_start",
-                                    'worker_id': worker_id,
-                                    'ten_min_info': ten_min_info
-                                }
-                                await state.pending_services.put(service_request)
-                                continue
+                        context = {"deanak_id": deanak_id, "worker_id": worker_id}
 
                         # 서비스 실행
-                        if service == "10분접속" and otp == 0 and coupon_count == 0 and ten_min_state == 2:
+                        if service == "10분접속" and otp == 0 and coupon_count == 0 and ten_min_state == '2':
+                            remote_pcs = await check_remote_pc_state(server_id, worker_id, ten_min_info)
+                            if not remote_pcs:
+                                continue
+
                             print("otp 작업 없이 10분 접속 작업 시작")
                             await do_task("ten_min_start", ten_min_info)
 
-                        if service == "10분접속" and otp == 1 and coupon_count == 0 and ten_min_state == 2 and otp_pass == 0:
+                        if service == "10분접속" and otp == 1 and otp_pass == 0 and coupon_count == 0 and ten_min_state == '2':
+                            remote_pcs = await check_remote_pc_state(server_id, worker_id, ten_min_info)
+                            if not remote_pcs:
+                                continue
+
                             print("otp 인식 시작")
                             await do_task("otp_check", ten_min_info)
 
+            except ControllerError as e:
+                async with get_db_context() as db:
+                    await RemoteDao.update_tasks_request(db, server_id, "stopped")
+                error_handler.handle_error(e, critical=True, context=context, user_message=error_handler.CONTROLLER_ERROR)
+                print(f"deanak_controller.py파일 내의 do_task함수에서 알수 없는 오류 발생: {e}")
+                continue
             except Exception as e:
-                print(f"Row 처리 중 오류 발생: {e}")
+                async with get_db_context() as db:
+                    await RemoteDao.update_tasks_request(db, server_id, "stopped")
+                error_handler.handle_error(e, critical=True, context=context, user_message=error_handler.HANDLER_ERROR)
+                print(f"개별 row 처리 중 오류 발생: {e}")
                 continue
 
     except Exception as e:
-        print(f"이벤트 처리 중 오류 발생: {e}")
+        async with get_db_context() as db:
+            await RemoteDao.update_tasks_request(db, server_id, "stopped")
+        error_handler.handle_error(e, critical=True, context=context, user_message=error_handler.HANDLER_ERROR)
+        print(f"전체 이벤트 처리 중 오류 발생: {e}")
+        raise e
+
+async def check_remote_pc_state(server_id, worker_id, ten_min_info):
+    """원격 PC의 상태를 확인하고 필요한 경우 대기열에 추가"""
+    async with get_db_context() as db:
+        remote_pcs = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id)
+        if remote_pcs is None:
+            print(f"해당 작업자의 원격pc 서버를 찾지 못했습니다.")
+            return False
+
+        working_count = await RemoteDao.get_working_count_by_server_id(db, server_id)
+        worker_remote_data = await RemoteDao.get_remote_pc_by_server_id_and_worker_id(db, server_id, worker_id) 
+        if working_count > 0 or worker_remote_data.state == "waiting":
+            print(f"작업 중인 PC가 있습니다. 요청을 대기열에 추가합니다: worker_id={worker_id}")
+            service_request = {
+                'request': "deanak_start",
+                'ten_min_info': ten_min_info,
+                'worker_id': worker_id
+            }
+            await state.pending_services.put(service_request)
+            return False
+        
+        return remote_pcs

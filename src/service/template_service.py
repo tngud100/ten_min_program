@@ -1,43 +1,34 @@
 import os
 import cv2
+from dotenv import load_dotenv
+import requests
+import numpy as np
 from src.utils.image_matcher import ImageMatcher
-
-class TemplateEmptyError(Exception):
-    pass
+from src.utils.error_handler import TemplateEmptyError
 
 class TemplateService:
     def __init__(self, image_matcher: ImageMatcher):
         self.image_matcher = image_matcher
+        load_dotenv()
+        self.base_url = os.getenv("IMG_URL");
+        self.base_url = self.base_url.rstrip('/')
         self.TEMPLATES = {
             # OTP 관련 템플릿
-            "otp_frame": 'static/image/otpFrame.PNG',
-            "otp_number": 'static/image/otpNumber.PNG',
-            "otp_wrong": 'static/image/otpWrong.PNG',
-            # 대낙 관련 템플릿
-            "password_screen": 'static/image/passwordScreen.PNG',
-            "password_confirm": 'static/image/loginConfirm.PNG',
-            "wrong_password": 'static/image/wrongPassword.PNG',
-            "notice_screen": 'static/image/notice.PNG',
-            "team_select_screen": 'static/image/selectTeam.PNG',
-            "team_select_text": 'static/image/selectTeamText.PNG',
-            "purchase_before_main_screen": 'static/image/beforeMainPurchases.PNG',
-            "purchase_cancel_btn": 'static/image/purchaseCloseBtn.PNG',
-            "main_screen": 'static/image/mainScreen.PNG',
-            "market_screen": 'static/image/marketScreen.PNG',
-            "get_item_screen": 'static/image/getItemScreen.PNG',
-            "get_all_screen": 'static/image/getAllScreen.PNG',
-            "top_class": 'static/image/topClass.PNG',
-            "no_top_class": 'static/image/noTopClass.PNG',
-            "market_btn": 'static/image/market.PNG',
-            "list_btn": 'static/image/sellList.PNG',
-            "get_item_btn": 'static/image/getItemConfirm.PNG',
-            "arrange_btn_screen": 'static/image/PriceArrangeScreen.PNG',
-            "arrange_btn": 'static/image/priceArrangeBtn.PNG',
-            "price_desc": 'static/image/priceDesc.PNG',
-            "get_all_btn_screen": 'static/image/getAllScreen.PNG',
-            "get_all_btn": 'static/image/getAll.PNG',
-            "top_class_screen": 'static/image/noUseTopclassGetModal.PNG',
-            "top_class_cancel_btn": 'static/image/noUseTopclassGetConfirm.PNG',
+            "otp_frame": '/otpFrame.PNG',
+            "otp_number": '/otpNumber.PNG',
+            "otp_wrong": '/otpWrong.PNG',
+            # 10분접속 관련 템플릿
+            "password_screen": '/passwordScreen.PNG',
+            "password_confirm": '/loginConfirm.PNG',
+            "wrong_password": '/wrongPassword.PNG',
+            "team_select_screen": '/selectTeam.PNG',
+            "team_select_text": '/selectTeamText.PNG',
+            # 중복 로그인 에러
+            "same_login_in_anykey_error": '/atThatSameTimeInAnyKeyAndBeforeAccountExpire.png',
+            "someone_already_login_error": '/duplicateConnection.png',
+            "some_one_connecting_try_error": '/someOneConnect.png',
+            "same_login_in_password_error": '/whenThroughPasswordButSomeOneInPassword.png',
+            "some_one_otp_pass_error": '/whenFinishOTPpassButSomeOnePassOTPEither.png'
         }
         self._template_cache = {}
 
@@ -48,21 +39,20 @@ class TemplateService:
             if template_path in self._template_cache:
                 return self._template_cache[template_path]
 
-            # 파일 존재 확인
-            if not os.path.exists(template_path):
-                raise FileNotFoundError(f"템플릿 파일이 존재하지 않습니다: {template_path}")
+            # 서버에서 이미지 다운로드
+            url = f"{self.base_url}{template_path}"
+            response = requests.get(url)
+            response.raise_for_status()  # 에러 체크
 
-            # 템플릿 로드
-            template = cv2.imread(template_path)
+            # 이미지 데이터를 numpy array로 변환
+            image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+            template = cv2.imdecode(image_array, cv2.IMREAD_GRAYSCALE)
+
             if template is None:
-                raise Exception(f"템플릿 로드 실패: {template_path}")
+                raise TemplateEmptyError(f"Failed to load template from {url}")
 
-            # 흑백 변환
-            template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-            
             # 캐시에 저장
             self._template_cache[template_path] = template
-            
             return template
 
         except Exception as e:
@@ -84,12 +74,12 @@ class TemplateService:
         templates = {}
         for key in template_keys:
             if key not in self.TEMPLATES:
-                raise Exception(f"존재하지 않는 템플릿 키: {key}")
+                raise TemplateEmptyError(f"존재하지 않는 템플릿 키: {key}")
                 
             path = self.TEMPLATES[key]
             template = self._load_template(path)
             if template is None:
-                raise Exception(f"템플릿 로드 실패: {path}")
+                raise TemplateEmptyError(f"템플릿 로드 실패: {path}")
                 
             templates[key] = template
             
@@ -99,10 +89,10 @@ class TemplateService:
         """비밀번호 템플릿 로드"""
         templates = {}
         for password in password_list:
-            path = f'static/image/{password}.PNG'
+            path = f'/{password}.PNG'
             template = self._load_template(path)
             if template is None:
-                raise Exception(f"비밀번호 템플릿 로드 실패: {path}")
+                raise TemplateEmptyError(f"비밀번호 템플릿 로드 실패: {path}")
             templates[password] = template
         return templates
 
@@ -130,10 +120,8 @@ class TemplateService:
                     templates[key] = self._template_cache[key]
                     continue
                 
-                
                 # 템플릿 파일 존재 확인
-                if not os.path.exists(path):
-                    raise TemplateEmptyError(f"템플릿 파일이 존재하지 않습니다: {path}")
+                # 서버에서 이미지를 다운로드 받기 때문에 파일 존재 확인 불필요
                 
                 # 템플릿 로드
                 template = self._load_template(path)

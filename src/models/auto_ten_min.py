@@ -8,7 +8,7 @@ class TenMinModel(Base):
     __tablename__ = 'auto_ten_min'
     
     deanak_id = Column(Integer, primary_key=True)
-    server_id = Column(Integer, nullable=False)
+    server_id = Column(String, nullable=False)
     pc_num = Column(Integer, nullable=False)
     state = Column(SQLEnum(ServiceState), nullable=False, default=ServiceState.READY)
     start_waiting_time = Column(DateTime, nullable=False, default=datetime.now)

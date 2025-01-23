@@ -19,8 +19,8 @@ async def monitor_binlog(unique_id_value):
         blocking=False,
         resume_stream=True,
         only_events=[UpdateRowsEvent],
-        only_tables=["remote_pcs", "deanak"],
-        only_schemas=["auto_daenak"],
+        only_tables=["remote_pcs", "daenak"],
+        only_schemas=["ez_daenak"],
         freeze_schema=False # 스키마 변경사항을 실시간으로 반영하여 컬럼명이 제대로 표시되도록 함
     )
 
