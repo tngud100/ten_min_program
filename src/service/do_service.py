@@ -1,7 +1,7 @@
 import asyncio
 from src.models import deanak
 from src.utils.remote_controller import RemoteController
-from src.utils.error_handler import CantFindRemoteProgram, TenMinError, ErrorHandler, CheckTimerError, CantFindTenMinDataError, OTPError, NoWorkerError, CantFindPcNumError, OTPTimeoutError, NoDetectionError, OTPOverTimeDetectError, TemplateEmptyError
+from src.utils.error_handler import CantFindRemoteProgram, DuplicateLoginError, TenMinError, ErrorHandler, CheckTimerError, CantFindTenMinDataError, OTPError, NoWorkerError, CantFindPcNumError, OTPTimeoutError, NoDetectionError, OTPOverTimeDetectError, TemplateEmptyError
 from src.dao.remote_pcs_dao import RemoteDao
 from src.service.auto_ten_min import AutoTenMin
 from src.dao.auto_ten_min_dao import AutoTenMinDao
@@ -65,8 +65,8 @@ class DoService:
                 pc_num = await self._validate_worker(db, server_id, worker_id)
 
             # 원격 연결 시작
-            if not await self.remote.start_remote(pc_num):
-                return False
+            # if not await self.remote.start_remote(pc_num):
+            #     return False
 
             # 2분 동안만 실행
             while (asyncio.get_event_loop().time() - start_time) < timeout_duration:
@@ -179,8 +179,11 @@ class DoService:
                 await self.auto_ten_min_dao.insert_ten_min_start(db, deanak_id=deanak_id, server_id=server_id, pc_num=pc_num)
             
             # 10분 대기와 타이머 체크를 백그라운드에서 실행
-            asyncio.create_task(self._wait_and_check_timer())
-            
+            waiting = asyncio.create_task(self._wait_and_check_timer(deanak_id))
+            ten_min = await waiting
+            if not ten_min:
+                return False
+
             return True
                 
 
@@ -193,20 +196,26 @@ class DoService:
             print(f"10분 접속 실행 중 오류 발생: {e}")
             return False
 
-    async def _wait_and_check_timer(self):
+    async def _wait_and_check_timer(self, deanak_id):
         """10분 대기 후 타이머를 체크하는 백그라운드 태스크"""
         try:
             # 이전에 만약 겹쳤을시에 대기 중이었던 10분 접속 작업들을 처리
-            await self.ten_min_timer_service.process_waiting_tasks()
+            # await self.ten_min_timer_service.process_waiting_tasks()
             
-            await asyncio.sleep(self.state.SERVICE_TIMER)  # 10분 대기
+            try:
+                if await self.auto_ten_min.check_duplicate_login(deanak_id):
+                    return False
+            except DuplicateLoginError:
+                return False
             
             print(f"타이머 완료")
+            await asyncio.sleep(2)
             # 현재 서버의 state가 working인 인스턴스가 있으면 패스
 
             
             # 자신의 10분 접속을 처리하기 전에 만약 대기 중이었던 작업들이 있다면 차례대로 처리
             await self.ten_min_timer_service.process_waiting_tasks()
+            return True
 
 
         except CantFindTenMinDataError as e:

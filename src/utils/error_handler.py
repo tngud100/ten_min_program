@@ -78,23 +78,61 @@ class ErrorHandler:
     CHECK_TIMER_ERROR = "check_timer 알 수 없는 오류 발생"
 
     def __init__(self):
+        """
+        ErrorHandler 초기화
+        """
         self.log_dir = "logs/error"
         os.makedirs(self.log_dir, exist_ok=True)
         self.setup_logger()
         self.remote_pcs_dao = RemoteDao()
         self.unique_id = state.unique_id()
         self.api_instance = ApiClass()  # ApiClass 사용
-        self.error_messages = {
-            '프로그램 오류': [
+        self.user_message = {
+            '': [
                 self.API_CALL_ERROR,
                 self.TEMPLATE_EMPTY_ERROR,
                 self.NO_WORKER_ERROR,
                 self.CANT_FIND_PC_NUM_ERROR,
                 self.CANT_FIND_REMOTE_PROGRAM,
                 self.CONTROLLER_ERROR,
-                self.HANDLER_ERROR
+                self.HANDLER_ERROR,
+                self.EMPTY_PASSWORD_TEMPLATE,
+                self.TEN_MIN_ERROR,
+                self.CANT_FIND_TEN_MIN_DATA,
+                self.OTP_ERROR,
+                self.CHECK_TIMER_ERROR
             ],
-            '중복 로그인 오류': [
+            '인식 횟수 초과': [self.OTP_OVER_TIME_DETECT],
+            '인증 시간 초과': [self.OTP_TIME_OUT],
+
+            '인게임 동시 접속': [self.SAME_START_ERROR_BY_ANYKEY_SCENE],
+            '이미 로그인되어 있는 계정': [self.DUPLICATE_CONNECTING_ERROR],
+            '고객이 중복 로그인을 시도': [self.SOMEONE_CONNECT_TRY_ERROR],
+            '인게임 동시 접속': [self.SAME_START_ERROR_BY_PASSWORD_SCENE],
+            '고객이 중복 OTP 시도': [self.DUPLICATE_OTP_CHECK_ERROR],
+
+            '잘못된 비밀번호 입력': [self.WRONG_PASSWORD_ERROR],
+            'OTP': [self.NO_DETECT_OTP_SCENE],
+            '비밀번호 화면': [self.NO_DETECT_PASSWORD_SCENE],
+            '공지 화면': [self.NO_DETECT_NOTICE_SCENE],
+            '팀선택 화면': [self.NO_DETECT_TEAM_SELECT_SCENE],
+        }
+        self.error_messages = {
+            '프로그램': [
+                self.API_CALL_ERROR,
+                self.TEMPLATE_EMPTY_ERROR,
+                self.NO_WORKER_ERROR,
+                self.CANT_FIND_PC_NUM_ERROR,
+                self.CANT_FIND_REMOTE_PROGRAM,
+                self.CONTROLLER_ERROR,
+                self.HANDLER_ERROR,
+                self.EMPTY_PASSWORD_TEMPLATE,
+                self.TEN_MIN_ERROR,
+                self.CANT_FIND_TEN_MIN_DATA,
+                self.OTP_ERROR,
+                self.CHECK_TIMER_ERROR
+            ],
+            '중복 로그인': [
                 self.SAME_START_ERROR_BY_ANYKEY_SCENE,
                 self.DUPLICATE_CONNECTING_ERROR,
                 self.SAME_START_ERROR_BY_PASSWORD_SCENE,
@@ -102,20 +140,16 @@ class ErrorHandler:
                 self.DUPLICATE_OTP_CHECK_ERROR
             ],
             'OTP': [
-                self.NO_DETECT_OTP_SCENE,
                 self.OTP_OVER_TIME_DETECT,
                 self.OTP_TIME_OUT,
-                self.OTP_ERROR
             ],
-            '비밀번호 오류': [self.WRONG_PASSWORD_ERROR],
-            '게임실행 오류': [self.NO_DETECT_PASSWORD_SCENE],
-            '팀 선택 화면 오류': [self.NO_DETECT_NOTICE_SCENE],
-            '10분 접속 중 오류': [
-                self.EMPTY_PASSWORD_TEMPLATE,
-                self.TEN_MIN_ERROR,
-                self.CANT_FIND_TEN_MIN_DATA,
-                self.CHECK_TIMER_ERROR
-            ]
+            '비밀번호': [self.WRONG_PASSWORD_ERROR],
+            '탐지실패': [
+                self.NO_DETECT_OTP_SCENE,
+                self.NO_DETECT_PASSWORD_SCENE,
+                self.NO_DETECT_NOTICE_SCENE,
+                self.NO_DETECT_TEAM_SELECT_SCENE
+            ],
         }
 
     def setup_logger(self):
@@ -156,13 +190,15 @@ class ErrorHandler:
             # 사용자에게 알림
             if user_message:
                 error_key = self.get_error_key(user_message)
+                message_key = self.get_message_key(user_message)
+
                 if error_key:
                     print(f"{error_key}: {user_message}")
                     deanak_id = context.get('deanak_id')
                     if deanak_id is None:
                         raise MessageSendFail("deanak_id가 없음")
 
-                    asyncio.create_task(self.api_instance.send_error(deanak_id, error_key, user_message))
+                    asyncio.create_task(self.api_instance.send_error(deanak_id, error_key, message_key))
 
             return {
                 'error': str(error),
@@ -177,12 +213,18 @@ class ErrorHandler:
             print(f"ErrorHandler에서 오류 발생: {e}")
             return None
 
+    def get_message_key(self, message):
+        for key, value in self.user_message.items():
+            if message in value:
+                return key
+        return ""
+
     def get_error_key(self, message):
         """주어진 에러 메시지에 해당하는 키를 반환합니다."""
         for key, value in self.error_messages.items():
             if message in value:
                 return key
-        return None
+        return ""
 
     def get_error_logs(self, date=None):
         """에러 로그 조회"""

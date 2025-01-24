@@ -124,8 +124,8 @@ async def startup():
     
     # DB에 server_id 등록
     async with AsyncSessionLocal() as db:
-        for i in range(5):
-            await RemoteDao.insert_remote_pc_server_id(db, unique_id_value)
+        await RemoteDao.insert_remote_pc_server_id(db, unique_id_value)
+        # for i in range(5):
     await api.send_login(unique_id_value)
     
     return unique_id_value
