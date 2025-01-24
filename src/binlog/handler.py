@@ -1,7 +1,5 @@
 from pymysqlreplication.row_event import (
-    DeleteRowsEvent,
     UpdateRowsEvent,
-    WriteRowsEvent,
 )
 from sqlalchemy.orm import context, remote
 from src.controller.ten_min_controller import do_task

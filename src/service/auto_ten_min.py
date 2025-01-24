@@ -1,3 +1,4 @@
+import datetime as dt
 from src.utils.error_handler import DuplicateLoginError, TenMinError, APICallError, NoDetectionError, WrongPasswordError, TemplateEmptyError
 from src.utils.image_matcher import ImageMatcher
 from src.utils.input_controller import InputController
@@ -90,7 +91,7 @@ class AutoTenMin:
                     if self.screen_state.team_select_passed:
                         print("10분접속 시작")
                         self.state.is_running = False
-                        await self.remote.exit_remote()
+                        # await self.remote.exit_remote()
 
                         # 작업 상태 업데이트
                         async with get_db_context() as db:
@@ -117,3 +118,22 @@ class AutoTenMin:
         except (Exception, ValueError) as e:
             self.state.is_running = False
             raise TenMinError("10분 작업 중 오류 - ten_min_start함수 내")
+
+
+    async def check_duplicate_login(self, deanak_id):
+        try:
+            loaded_templates = self.template_service.get_templates()
+            current_time = dt.datetime.now()
+            timer_delta = dt.timedelta(seconds=self.state.SERVICE_TIMER)
+            end_time = current_time + timer_delta
+            print("중복 접속 체크 전")
+            while (end_time - dt.datetime.now()).total_seconds() > 0:
+                screen = self.capture.screen_capture()
+                print("중복 접속 체크")
+                self.duplicate_login_handler.check_duplicate_login(screen, loaded_templates, deanak_id)
+                await asyncio.sleep(30)
+
+            return True
+
+        except DuplicateLoginError as e:
+            return False

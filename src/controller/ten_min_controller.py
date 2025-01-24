@@ -57,14 +57,14 @@ async def do_task(request, ten_min_info:dict=None):
             await asyncio.sleep(15)
             if not await do_otp(ten_min_info, server_id):
                 return False
-            print("otp 인식 완료, 15초 뒤 10분 접속 작업 시작")
+            print("otp 인식 완료, 5초 뒤 10분 접속 작업 시작")
             await do_task("ten_min_start", ten_min_info)
 
         if request == "ten_min_start":
             # 먼저 대기 중인 10분 접속 데이터 처리
-            await ten_min_timer_service.process_waiting_tasks()
+            # await ten_min_timer_service.process_waiting_tasks()
             # 작업 상태 업데이트는 대기 중인 데이터 처리 후에 수행
-            if ten_min_info['otp'] == 0:
+            if not ten_min_info['otp']:
                 async with get_db_context() as db:
                     await remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "working")
                 await api.send_start(ten_min_info['deanak_id'])

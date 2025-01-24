@@ -109,14 +109,14 @@ class TenMinTimerService:
             async with get_db_context() as db:
                 pc_num = await self.remote_pcs_dao.get_pc_num_by_worker_id(db, worker_id);
             
-            if not await self.remote.start_remote(pc_num):
-                return False
+            # if not await self.remote.start_remote(pc_num):
+            #     return False
 
             # 프로그램 종료 (Alt+F4)
             await self.remote.exit_program()
             await asyncio.sleep(1)  # 종료 대기
             # 원격 연결 종료
-            await self.remote.exit_remote()
+            # await self.remote.exit_remote()
 
             async with get_db_context() as db:
                 # PC 상태를 idle로 변경

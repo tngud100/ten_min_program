@@ -14,15 +14,15 @@ class TemplateService:
         self.base_url = self.base_url.rstrip('/')
         self.TEMPLATES = {
             # OTP 관련 템플릿
-            "otp_frame": '/otpFrame.PNG',
-            "otp_number": '/otpNumber.PNG',
-            "otp_wrong": '/otpWrong.PNG',
+            "otp_frame": '/otpFrame.png',
+            "otp_number": '/otpNumber.png',
+            "otp_wrong": '/otpWrong.png',
             # 10분접속 관련 템플릿
-            "password_screen": '/passwordScreen.PNG',
-            "password_confirm": '/loginConfirm.PNG',
-            "wrong_password": '/wrongPassword.PNG',
-            "team_select_screen": '/selectTeam.PNG',
-            "team_select_text": '/selectTeamText.PNG',
+            "password_screen": '/passwordScreen.png',
+            "password_confirm": '/loginConfirm.png',
+            "wrong_password": '/wrongPassword.png',
+            "team_select_screen": '/selectTeam.png',
+            "team_select_text": '/selectTeamText.png',
             # 중복 로그인 에러
             "same_login_in_anykey_error": '/atThatSameTimeInAnyKeyAndBeforeAccountExpire.png',
             "someone_already_login_error": '/duplicateConnection.png',
@@ -33,7 +33,7 @@ class TemplateService:
         self._template_cache = {}
 
     def _load_template(self, template_path: str):
-        """단일 템플릿 이미지를 로드하고 캐싱"""
+        """서버에서 템플릿 이미지를 로드하고 캐싱"""
         try:
             # 캐시 확인
             if template_path in self._template_cache:
@@ -41,23 +41,39 @@ class TemplateService:
 
             # 서버에서 이미지 다운로드
             url = f"{self.base_url}{template_path}"
-            response = requests.get(url)
-            response.raise_for_status()  # 에러 체크
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+            except requests.RequestException as e:
+                print(f"첫 번째 시도 실패 ({url}): {str(e)}")
+                # 첫 번째 시도 실패시 다른 확장자로 시도
+                base_path = template_path[:-4]  # 확장자 제거
+                if template_path.lower().endswith('.png'):
+                    alt_path = base_path + '.PNG'
+                else:
+                    alt_path = base_path + '.png'
+                
+                url = f"{self.base_url}{alt_path}"
+                print(f"두 번째 시도 ({url})")
+                response = requests.get(url)
+                response.raise_for_status()
 
             # 이미지 데이터를 numpy array로 변환
             image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
             template = cv2.imdecode(image_array, cv2.IMREAD_GRAYSCALE)
 
             if template is None:
-                raise TemplateEmptyError(f"Failed to load template from {url}")
+                raise TemplateEmptyError(f"템플릿 이미지를 디코딩할 수 없습니다: {url}")
 
             # 캐시에 저장
             self._template_cache[template_path] = template
             return template
 
+        except requests.RequestException as e:
+            raise TemplateEmptyError(f"템플릿 다운로드 실패 (파일이 서버에 없을 수 있음): {str(e)}")
         except Exception as e:
-            print(f"템플릿 로드 중 오류 발생: {e}")
-            return None
+            raise TemplateEmptyError(f"템플릿 로드 중 오류 발생: {str(e)}")
+
 
     def load_templates(self, template_keys: list):
         """지정된 키에 해당하는 템플릿 이미지들을 로드
@@ -89,7 +105,7 @@ class TemplateService:
         """비밀번호 템플릿 로드"""
         templates = {}
         for password in password_list:
-            path = f'/{password}.PNG'
+            path = f'/{password}.png'
             template = self._load_template(path)
             if template is None:
                 raise TemplateEmptyError(f"비밀번호 템플릿 로드 실패: {path}")

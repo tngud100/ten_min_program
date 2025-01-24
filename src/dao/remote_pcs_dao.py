@@ -10,7 +10,7 @@ class RemoteDao:
         """원격 PC 서버 ID를 데이터베이스에 삽입"""
         try:
             remote_pc = RemotePcs(
-                server_id=server_id,
+                server_id=str(server_id),
                 service="10분접속",
                 state="None"
             )
@@ -25,7 +25,7 @@ class RemoteDao:
     async def delete_remote_pc_by_server_id(db, server_id):
         """서버 ID로 원격 PC 정보 삭제"""
         try:
-            stmt = delete(RemotePcs).where(RemotePcs.server_id == server_id)
+            stmt = delete(RemotePcs).where(RemotePcs.server_id == str(server_id))
             await db.execute(stmt)
             await db.commit()
             return True
@@ -59,7 +59,7 @@ class RemoteDao:
         try:
             stmt = select(RemotePcs).where(
                 and_(
-                    RemotePcs.server_id == server_id,
+                    RemotePcs.server_id == str(server_id),
                     RemotePcs.worker_id == worker_id
                 )
             )
@@ -79,7 +79,7 @@ class RemoteDao:
             # 업데이트 수행
             stmt = update(RemotePcs).where(
                 and_(
-                    RemotePcs.server_id == server_id,
+                    RemotePcs.server_id == str(server_id),
                     RemotePcs.worker_id == worker_id
                 )
             ).values(state=request)
@@ -105,7 +105,7 @@ class RemoteDao:
         try:
             stmt = select(RemotePcs).where(
                 and_(
-                    RemotePcs.server_id == server_id,
+                    RemotePcs.server_id == str(server_id),
                     RemotePcs.state == 'working'
                 )
             )
