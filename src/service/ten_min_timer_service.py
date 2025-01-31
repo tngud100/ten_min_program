@@ -70,16 +70,16 @@ class TenMinTimerService:
                     return False
 
                 # 작업 중인 PC 수 확인
-                working_count = await self.remote_pcs_dao.get_working_count_by_server_id(db, server_id)
-                if working_count > 0:
-                    print("작업 중인 PC가 있으므로 종료 로직은 이후 진행됩니다.")
-                    return False  # 아직 다른 PC가 작업 중
+                # working_count = await self.remote_pcs_dao.get_working_count_by_server_id(db, server_id)
+                # if working_count > 0:
+                #     print("작업 중인 PC가 있으므로 종료 로직은 이후 진행됩니다.")
+                #     return False  # 아직 다른 PC가 작업 중
 
-                # 대기 큐 확인
-                waiting_queue = await self.auto_ten_min_dao.get_waiting_queue_by_server_id(db, server_id)
-                if not waiting_queue or waiting_queue[0].deanak_id != deanak_id:
-                    print("대기 큐에 있는 deanak_id의 번호가 아니거나 없습니다.")
-                    return False  # 이 PC가 큐의 첫 번째가 아님
+                # # 대기 큐 확인
+                # waiting_queue = await self.auto_ten_min_dao.get_waiting_queue_by_server_id(db, server_id)
+                # if not waiting_queue or waiting_queue[0].deanak_id != deanak_id:
+                #     print("대기 큐에 있는 deanak_id의 번호가 아니거나 없습니다.")
+                #     return False  # 이 PC가 큐의 첫 번째가 아님
 
                 # 작업 시작
                 worker_id = await self.deanak_dao.get_worker_id_by_deanak_id(db, deanak_id)
@@ -134,19 +134,22 @@ class TenMinTimerService:
         except Exception as e:
             raise CheckTimerError(f"check_timer함수의 finish_ten_min함수 내 오류")
 
-    async def process_waiting_tasks(self):
+    async def process_waiting_tasks(self, deanak_id, server_id):
         """대기 중인 10분 접속 작업들을 처리"""
         try:
-            async with get_db_context() as db:
-                waiting_tasks = await self.auto_ten_min_dao.waiting_ten_min(db)
+            # async with get_db_context() as db:
+            #     waiting_tasks = await self.auto_ten_min_dao.waiting_ten_min(db)
 
-            print(f"대기 중인 작업 수: {len(waiting_tasks) if waiting_tasks else 0}")
+            # print(f"대기 중인 작업 수: {len(waiting_tasks) if waiting_tasks else 0}")
 
-            if waiting_tasks:
-                for task in waiting_tasks:
-                    print(f"대기 중인 작업 처리 - deanak_id: {task.deanak_id}")
-                    await self.check_timer(task.server_id, task.deanak_id)
-        
+            # if waiting_tasks:
+            #     for task in waiting_tasks:
+            #         print(f"대기 중인 작업 처리 - deanak_id: {task.deanak_id}")
+            #         await self.check_timer(task.server_id, task.deanak_id)
+
+            # 1:1 대응 컴퓨터는 위의 작업이 필요없음
+            await self.check_timer(server_id, deanak_id)
+
         except CantFindTenMinDataError as e:
             raise
         except (Exception, CheckTimerError) as e:

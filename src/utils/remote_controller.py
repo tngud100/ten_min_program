@@ -90,6 +90,10 @@ class RemoteController:
         Returns:
             bool: 종료 성공 여부
         """
+        self.input.hotkey('alt', 'f4')
+        print("프로그램 종료")
+        await asyncio.sleep(3)
+        
         self.input.press_key('win')
         await asyncio.sleep(1)
         self.input.press_key('win')

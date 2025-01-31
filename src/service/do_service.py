@@ -1,5 +1,7 @@
 import asyncio
+from os import error
 from src.models import deanak
+from src.utils import error_handler
 from src.utils.remote_controller import RemoteController
 from src.utils.error_handler import CantFindRemoteProgram, DuplicateLoginError, TenMinError, ErrorHandler, CheckTimerError, CantFindTenMinDataError, OTPError, NoWorkerError, CantFindPcNumError, OTPTimeoutError, NoDetectionError, OTPOverTimeDetectError, TemplateEmptyError
 from src.dao.remote_pcs_dao import RemoteDao
@@ -179,7 +181,7 @@ class DoService:
                 await self.auto_ten_min_dao.insert_ten_min_start(db, deanak_id=deanak_id, server_id=server_id, pc_num=pc_num)
             
             # 10분 대기와 타이머 체크를 백그라운드에서 실행
-            waiting = asyncio.create_task(self._wait_and_check_timer(deanak_id))
+            waiting = asyncio.create_task(self._wait_and_check_timer(deanak_id, server_id))
             ten_min = await waiting
             if not ten_min:
                 return False
@@ -196,16 +198,19 @@ class DoService:
             print(f"10분 접속 실행 중 오류 발생: {e}")
             return False
 
-    async def _wait_and_check_timer(self, deanak_id):
+    async def _wait_and_check_timer(self, deanak_id, server_id):
         """10분 대기 후 타이머를 체크하는 백그라운드 태스크"""
         try:
             # 이전에 만약 겹쳤을시에 대기 중이었던 10분 접속 작업들을 처리
             # await self.ten_min_timer_service.process_waiting_tasks()
             
             try:
-                if await self.auto_ten_min.check_duplicate_login(deanak_id):
+                if not await self.auto_ten_min.check_duplicate_login(deanak_id):
+                    print(f"중복 접속")
                     return False
-            except DuplicateLoginError:
+                print(f"중복 접속 아님")
+            except Exception as e:
+                print(f"중복 접속 체크 중 오류 발생: {e}")
                 return False
             
             print(f"타이머 완료")
@@ -214,7 +219,7 @@ class DoService:
 
             
             # 자신의 10분 접속을 처리하기 전에 만약 대기 중이었던 작업들이 있다면 차례대로 처리
-            await self.ten_min_timer_service.process_waiting_tasks()
+            await self.ten_min_timer_service.process_waiting_tasks(deanak_id, server_id)
             return True
 
 

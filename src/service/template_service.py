@@ -14,9 +14,9 @@ class TemplateService:
         self.base_url = self.base_url.rstrip('/')
         self.TEMPLATES = {
             # OTP 관련 템플릿
-            "otp_frame": '/otpFrame.png',
+            "otp_frame": '/otpFrame.PNG',
             "otp_number": '/otpNumber.png',
-            "otp_wrong": '/otpWrong.png',
+            "otp_wrong": '/otpWrong.PNG',
             # 10분접속 관련 템플릿
             "password_screen": '/passwordScreen.png',
             "password_confirm": '/loginConfirm.png',

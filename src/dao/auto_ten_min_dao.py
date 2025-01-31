@@ -120,6 +120,7 @@ class AutoTenMinDao:
             )
             result = await db.execute(stmt)
             waiting_services = result.scalars().all()
+            print(f"대기 중인 서비스 수: {len(waiting_services)}")
             
             # 만료된 서비스 필터링
             expired_services = []
