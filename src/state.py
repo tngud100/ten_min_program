@@ -48,7 +48,7 @@ service_running_task = None
 waiting_process_task = None
 is_running = True  # Task 실행 상태를 제어하기 위한 플래그
 worker_id = []
-SERVICE_TIMER = 1 * 35 # 시간분으로 11분
+SERVICE_TIMER = 11 * 60 # 시간분으로 11분
 pending_services = Queue()
 
 def add_worker(worker_id_value):

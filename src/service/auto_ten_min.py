@@ -128,7 +128,7 @@ class AutoTenMin:
             end_time = current_time + timer_delta
             while (end_time - dt.datetime.now()).total_seconds() > 0:
                 screen = self.capture.screen_capture()
-                await asyncio.sleep(20)
+                await asyncio.sleep(30)
                 print("중복 접속 체크")
                 self.duplicate_login_handler.check_duplicate_login(screen, loaded_templates, deanak_id)
 
