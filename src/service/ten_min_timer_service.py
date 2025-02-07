@@ -3,7 +3,11 @@ import asyncio
 from os import error
 from database import get_db_context
 from src.dao.deanak_dao import DeanakDao
+from src.detection.exit_game_handler import ExitGameHandler
+from src.service.template_service import TemplateService
 from src.utils import api
+from src.utils.image_matcher import ImageMatcher
+from src.utils.capture import CaptureUtil
 from src.utils.error_handler import ErrorHandler, CheckTimerError, CantFindTenMinDataError
 from src.dao.auto_ten_min_dao import AutoTenMinDao
 from src.dao.remote_pcs_dao import RemoteDao
@@ -27,7 +31,8 @@ class TenMinTimerService:
     """
     def __init__(self, remote: RemoteController, error_handler: ErrorHandler, 
                  remote_pcs_dao: RemoteDao, auto_ten_min_dao: AutoTenMinDao, deanak_dao: DeanakDao,
-                 input_controller: InputController, state: state, api: Api):
+                 input_controller: InputController, state: state, api: Api, image_matcher: ImageMatcher, capture: CaptureUtil,
+                 template_service: TemplateService):
         self.remote = remote
         self.error_handler = error_handler
         self.remote_pcs_dao = remote_pcs_dao
@@ -36,6 +41,11 @@ class TenMinTimerService:
         self.input_controller = input_controller
         self.state = state
         self.api = api
+        self.image_matcher = image_matcher
+        self.capture = capture
+        self.template_service = template_service
+
+        self.exit_game_handler = ExitGameHandler(self.image_matcher, self.capture, self.template_service)
 
     async def check_timer(self, server_id: str, deanak_id: int):
         """10분 접속 타이머를 확인하고 상태를 업데이트합니다.
@@ -53,7 +63,7 @@ class TenMinTimerService:
                 expired_services = await self.auto_ten_min_dao.get_expired_services(db)
                 for service in expired_services:
                     await self.auto_ten_min_dao.update_ten_min_state(
-                        db, service.deanak_id, service.server_id, 
+                        db, service.daenak_id, service.server_id, 
                         ServiceState.TIMEOUT
                     )
                     print("시간 초과된 서비스 db업데이트")
@@ -85,7 +95,7 @@ class TenMinTimerService:
                 worker_id = await self.deanak_dao.get_worker_id_by_deanak_id(db, deanak_id)
                 await self.remote_pcs_dao.update_tasks_request(db, server_id, worker_id, "working")
                 await self.auto_ten_min_dao.update_ten_min_state(db, deanak_id, server_id, ServiceState.WORKING)
-                await self.api.send_start(deanak_id)
+                # await self.api.send_start(deanak_id)
 
             return await self.finish_ten_min(server_id, deanak_id, worker_id)
         
@@ -113,6 +123,7 @@ class TenMinTimerService:
             #     return False
 
             # 프로그램 종료 (Alt+F4)
+            await self.exit_game_handler.handle_exit_game_screen(deanak_id)
             await self.remote.exit_program()
             await asyncio.sleep(1)  # 종료 대기
             # 원격 연결 종료

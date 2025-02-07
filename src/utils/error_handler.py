@@ -73,6 +73,7 @@ class ErrorHandler:
     NO_DETECT_TEAM_SELECT_SCENE = "팀선택 화면 탐지 실패"
     EMPTY_PASSWORD_TEMPLATE = "비밀번호 템플릿을 찾을 수 없습니다"
     TEN_MIN_ERROR = "10분접속 작업 중 오류 - 무한 로직(WHILE) 내"
+    NO_DETECT_EXIT_GAME_SCREEN_SCENE = "게임 종료 화면 탐지 실패(team, exit_modal 중 탐지 실패)"
 
     CANT_FIND_TEN_MIN_DATA = "10분 접속 작업 큐를 찾을 수 없습니다."
     CHECK_TIMER_ERROR = "check_timer 알 수 없는 오류 발생"
@@ -116,6 +117,7 @@ class ErrorHandler:
             '비밀번호 화면': [self.NO_DETECT_PASSWORD_SCENE],
             '공지 화면': [self.NO_DETECT_NOTICE_SCENE],
             '팀선택 화면': [self.NO_DETECT_TEAM_SELECT_SCENE],
+            '게임 종료 화면': [self.NO_DETECT_EXIT_GAME_SCREEN_SCENE],
         }
         self.error_messages = {
             '프로그램': [
@@ -148,7 +150,8 @@ class ErrorHandler:
                 self.NO_DETECT_OTP_SCENE,
                 self.NO_DETECT_PASSWORD_SCENE,
                 self.NO_DETECT_NOTICE_SCENE,
-                self.NO_DETECT_TEAM_SELECT_SCENE
+                self.NO_DETECT_TEAM_SELECT_SCENE,
+                self.NO_DETECT_EXIT_GAME_SCREEN_SCENE
             ],
         }
 

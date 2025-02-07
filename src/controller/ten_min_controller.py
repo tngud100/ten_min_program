@@ -35,7 +35,7 @@ api = Api()
 # 서비스 객체들 초기화
 template_service = TemplateService(image_matcher)
 otp_service = OTPService(image_matcher, capture, input_controller, template_service)
-ten_min_timer_service = TenMinTimerService(remote, error_handler, remote_pcs_dao, auto_ten_min_dao, deanak_dao, input_controller, state, api)
+ten_min_timer_service = TenMinTimerService(remote, error_handler, remote_pcs_dao, auto_ten_min_dao, deanak_dao, input_controller, state, api, image_matcher, capture, template_service)
 auto_ten_min = AutoTenMin(image_matcher, input_controller, template_service, capture, state, remote_pcs_dao, remote, auto_ten_min_dao, api)
 do_service = DoService(remote, error_handler, state, deanak_dao, remote_pcs_dao, otp_service, auto_ten_min, ten_min_timer_service, auto_ten_min_dao, api)
 

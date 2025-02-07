@@ -97,7 +97,7 @@ class AutoTenMin:
                         async with get_db_context() as db:
                             await self.remote_pcs_dao.update_tasks_request(db, server_id, worker_id, 'waiting')
                             await self.auto_ten_min_dao.update_ten_min_state(db, deanak_id=deanak_id, server_id=server_id, state=ServiceState.WAITING)
-                            await self.api.send_waiting(deanak_id)
+                            # await self.api.send_waiting(deanak_id)
                         return True
 
                     await asyncio.sleep(2)

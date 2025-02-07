@@ -9,7 +9,7 @@ class AutoTenMinDao:
     async def insert_ten_min_start(db, deanak_id=None, server_id=None, pc_num=None):
         try:
             stmt = TenMinModel(
-                deanak_id=deanak_id,
+                daenak_id=deanak_id,
                 server_id=server_id,
                 pc_num=pc_num,
                 state=ServiceState.WAITING
@@ -27,7 +27,7 @@ class AutoTenMinDao:
         try:
             stmt = select(TenMinModel).where(
                 and_(
-                    TenMinModel.deanak_id == deanak_id,
+                    TenMinModel.daenak_id == deanak_id,
                     TenMinModel.server_id == server_id,
                 )
             )
@@ -94,7 +94,7 @@ class AutoTenMinDao:
         try:
             stmt = update(TenMinModel).where(
                 and_(
-                    TenMinModel.deanak_id == deanak_id,
+                    TenMinModel.daenak_id == deanak_id,
                     TenMinModel.server_id == server_id,
                 )
             ).values(
@@ -126,7 +126,7 @@ class AutoTenMinDao:
             expired_services = []
             for service in waiting_services:
                 time_diff = (current_time - service.start_waiting_time).total_seconds()
-                print(f"\n시간 체크 - deanak_id: {service.deanak_id}")
+                print(f"\n시간 체크 - deanak_id: {service.daenak_id}")
                 # print(f"시작 시간: {service.start_waiting_time}")
                 # print(f"현재 시간: {current_time}")
                 print(f"경과 시간: {time_diff}초")

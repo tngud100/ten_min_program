@@ -4,7 +4,7 @@ from src import state
 import time
 
 class PasswordHandler:
-    def __init__(self, image_matcher, input_controller, capture, MAX_DETECTION_ATTEMPTS=3):
+    def __init__(self, image_matcher, input_controller, capture, MAX_DETECTION_ATTEMPTS=20):
         self.image_matcher = image_matcher
         self.input_controller = input_controller
         self.capture = capture

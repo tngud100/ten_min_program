@@ -7,7 +7,7 @@ from src import state as global_state
 class TenMinModel(Base):
     __tablename__ = 'auto_ten_min'
     
-    deanak_id = Column(Integer, primary_key=True)
+    daenak_id = Column(Integer, primary_key=True)
     server_id = Column(String, nullable=False)
     pc_num = Column(Integer, nullable=False)
     state = Column(SQLEnum(ServiceState), nullable=False, default=ServiceState.READY)

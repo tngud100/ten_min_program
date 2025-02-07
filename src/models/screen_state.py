@@ -8,6 +8,9 @@ class ScreenState:
     password_passed: bool = False
     notice_passed: bool = False
     team_select_passed: bool = False
+    exit_team_screen_passed: bool = False
+    exit_modal_screen_passed: bool = False
+    
     # 화면 감지 시도 횟수
     detection_counts: Dict[str, int] = None
 
@@ -17,6 +20,8 @@ class ScreenState:
                 "password": 0,
                 "notice": 0,
                 "team_select": 0,
+                "exit_team": 0,
+                "exit_modal": 0
             }
     
     def increment_count(self, screen_name: str) -> None:
@@ -38,6 +43,8 @@ class ScreenState:
         self.password_passed = False
         self.notice_passed = False
         self.team_select_passed = False
+        self.exit_team_screen_passed = False
+        self.exit_modal_screen_passed = False
         
         for key in self.detection_counts:
             self.detection_counts[key] = 0
